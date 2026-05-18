@@ -1,0 +1,8 @@
+streamlit
+pandas
+pymongo
+plotly
+matplotlib
+wordcloud
+streamlit-autorefresh
+
