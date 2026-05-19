@@ -5,8 +5,9 @@
 %            de la consommation energetique en temps reel
 %
 %  Sections : 15. Ethique & Conformite
-%             17. Perspectives d'amelioration
-%             18. Conclusion
+%             17. Recommandations pour les professionnels
+%             18. Perspectives d'amelioration
+%             19. Conclusion
 %
 %  Compilation recommandee :  pdflatex main.tex (x2 pour les TOC/refs)
 % =====================================================================
@@ -119,8 +120,8 @@
   {\Huge\bfseries\color{sectiongreen} Projet Final}\\[0.4cm]
   {\Large\bfseries\color{titlered} Fondamentaux de Big Data}\\[1.5cm]
   {\large\itshape Analyse prédictive de la charge réseau\\et optimisation de la consommation énergétique en temps réel}\\[3cm]
-  {\large\textbf{Sections : 15, 17 et 18}}\\[0.5cm]
-  {\large Éthique \& Conformité --- Perspectives --- Conclusion}\\[3cm]
+  {\large\textbf{Sections : 15, 17, 18 et 19}}\\[0.5cm]
+  {\large Éthique \& Conformité --- Recommandations --- Perspectives --- Conclusion}\\[3cm]
   {\large\textbf{Année universitaire 2025--2026}}\\
   \vfill
 \end{titlepage}
@@ -258,7 +259,222 @@ Le projet respecte, par construction, les principes fondamentaux de la protectio
 \newpage
 
 % =====================================================================
-% SECTION 17 : PERSPECTIVES D'AMELIORATION
+% SECTION 17 : RECOMMANDATIONS POUR LES PROFESSIONNELS
+% =====================================================================
+\section{Recommandations pour les professionnels}
+\label{sec:recommandations}
+
+\subsection{Introduction et publics cibles}
+
+Le système livré ne se limite pas à un prototype académique : il fournit des leviers d'action concrets pour les acteurs du secteur énergétique marocain. Cette section formalise des recommandations adressées à \textbf{quatre publics professionnels} distincts, chacun pouvant exploiter différemment les sorties du pipeline (prédictions, alertes, corrélations NLP, métriques de qualité) :
+
+\begin{enumerate}
+  \item Les \textbf{gestionnaires de réseau de distribution} (ONEE, Amendis, Lydec, Redal) ;
+  \item Les \textbf{fournisseurs et traders d'énergie} ;
+  \item Les \textbf{équipes IT et Data Science} en charge de l'exploitation du système ;
+  \item Les \textbf{décideurs publics et régulateurs} (Ministère de la Transition Énergétique, CNDP, ANRE).
+\end{enumerate}
+
+Chaque recommandation est justifiée par les comportements observés dans le projet et par les sorties effectivement produites par le pipeline (collections MongoDB \texttt{spark\_district\_consumption}, \texttt{ml\_predictions}, \texttt{alerts}, \texttt{nlp\_correlations}).
+
+\subsection{Recommandations pour les gestionnaires de réseau}
+
+\subsubsection{Pilotage opérationnel temps réel}
+Le dashboard Streamlit permet de surveiller en continu les 18 quartiers de Tétouan. Nous recommandons aux opérateurs de :
+\begin{itemize}
+  \item Mettre en place une \textbf{salle de contrôle 24/7} avec rotation des équipes selon le flux d'alertes prédit.
+  \item Définir des \textbf{seuils d'action gradués} (vert / orange / rouge) intégrés directement dans le dashboard.
+  \item Documenter une \textbf{procédure d'escalade} pour chaque type d'alerte (\texttt{voltage\_risk}, \texttt{overload\_risk}, \texttt{saturation\_risk}).
+  \item Conserver un \textbf{journal d'incidents} alimenté automatiquement par les alertes pour audit a posteriori.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lcccY}
+\toprule
+\rowcolor{lightgray}
+\textbf{KPI} & \textbf{Vert} & \textbf{Orange} & \textbf{Rouge} & \textbf{Action recommandée} \\
+\midrule
+Tension moyenne (V) & $>$ 220 & 210--220 & $<$ 210 & Investigation transformateur immédiate \\
+Saturation zone (\%) & $<$ 60 & 60--80 & $>$ 80 & Préparer délestage proactif \\
+Compteurs en panne (\%) & $<$ 1 & 1--5 & $>$ 5 & Dépêche équipe technique \\
+Anomalies NLP / 15 min & $<$ 5 & 5--15 & $>$ 15 & Renforcer hotline support \\
+Écart prévu vs réel (\%) & $<$ 5 & 5--15 & $>$ 15 & Revue du modèle ML \\
+\bottomrule
+\end{tabularx}
+\caption{Seuils opérationnels recommandés pour la salle de contrôle}
+\end{table}
+
+\subsubsection{Délestage proactif intelligent}
+Plutôt que de subir les coupures, l'horizon de prédiction de 15~minutes permet d'organiser un \textbf{délestage sélectif et hiérarchisé} :
+\begin{itemize}
+  \item Établir des \textbf{contrats d'effacement} avec les gros clients industriels en échange de tarifs préférentiels.
+  \item Définir un \textbf{ordre de priorité} : industries volontaires $\rightarrow$ commerces $\rightarrow$ tertiaire $\rightarrow$ résidentiel (dernier recours).
+  \item Activer le délestage \textbf{avant la saturation effective}, lorsque la prédiction franchit le seuil orange.
+  \item Communiquer en \textbf{temps réel} aux clients délestés (SMS, application mobile).
+\end{itemize}
+
+\subsubsection{Maintenance prédictive des transformateurs}
+La corrélation NLP/tension implémentée dans le projet (\texttt{nlp\_correlations}) est un \textbf{indicateur précoce} de défaillance d'équipement :
+\begin{itemize}
+  \item Toute zone présentant simultanément une \textbf{dérive de tension} ($<$ 215~V) et un \textbf{pic de mots-clés négatifs} (\emph{panne, coupure, surcharge}) doit déclencher une inspection physique.
+  \item Programmer la maintenance préventive pendant les \textbf{heures de faible charge} (typiquement 02:00--05:00) identifiées dans les agrégations Spark.
+  \item Tenir un \textbf{historique pluriannuel} pour entraîner un futur modèle de \emph{Time-To-Failure}.
+\end{itemize}
+
+\subsection{Recommandations pour les fournisseurs d'énergie}
+
+\subsubsection{Optimisation des achats sur le marché de gros}
+Les prédictions à 15~minutes peuvent être agrégées pour produire des \textbf{prévisions \emph{day-ahead}} à l'échelle régionale :
+\begin{itemize}
+  \item Affiner les \textbf{nominations} sur le marché de gros (réduction des pénalités de déséquilibre).
+  \item Ajuster les \textbf{stratégies de couverture} (\emph{hedging}) selon les prévisions météo intégrées.
+  \item Identifier les \textbf{créneaux d'arbitrage} entre production locale et import.
+\end{itemize}
+
+\subsubsection{Tarification dynamique (Demand Response)}
+Recommandations pour évoluer du modèle binaire heures-pleines/creuses vers un modèle dynamique :
+\begin{itemize}
+  \item Définir des \textbf{tranches tarifaires variables} basées sur la charge prédite par quartier.
+  \item Notifier les clients via \textbf{application mobile} et SMS lorsque le tarif passe en heures creuses dynamiques.
+  \item Introduire des \textbf{mécanismes de récompense} (cashback, points fidélité) pour les clients qui décalent leur consommation.
+  \item Cibler en priorité les usages \textbf{décalables} : lave-linge, ballon d'eau chaude, recharge de véhicules électriques.
+\end{itemize}
+
+\subsubsection{Transparence et relation client}
+\begin{itemize}
+  \item Exploiter les agrégations pour offrir une \textbf{facture détaillée} avec décomposition horaire.
+  \item Fournir des \textbf{recommandations personnalisées} d'économie d'énergie (« \emph{vous consommez 30~\% de plus que la moyenne de votre quartier} »).
+  \item Garantir le \textbf{droit à l'explication} : tout client doit pouvoir comprendre pourquoi son quartier a été délesté ou facturé à un tarif majoré.
+\end{itemize}
+
+\subsection{Recommandations pour les équipes IT et Data Science}
+
+\subsubsection{Exploitation et MLOps}
+Pour assurer la pérennité du système au-delà du prototype :
+\begin{itemize}
+  \item Mettre en place un \textbf{ré-entraînement périodique} des trois modèles ML (mensuel au minimum, hebdomadaire si dérive détectée).
+  \item Monitorer la \textbf{dérive conceptuelle} (\emph{concept drift}) via la collection \texttt{ml\_model\_metrics} et alerter si la R$^2$ chute de plus de 10~\%.
+  \item Industrialiser le \textbf{registre de modèles} (MLflow) pour tracer chaque version déployée.
+  \item Automatiser les \textbf{sauvegardes MongoDB} (snapshots quotidiens, rétention 30~jours).
+  \item Garantir la \textbf{haute disponibilité Kafka} via un cluster 3 brokers en production.
+\end{itemize}
+
+\subsubsection{Sécurité et conformité opérationnelle}
+\begin{itemize}
+  \item Activer \textbf{TLS} sur tous les flux Kafka et MongoDB dès la mise en production.
+  \item Mettre en place une \textbf{authentification SASL/SCRAM} entre producers et brokers.
+  \item Effectuer des \textbf{audits de sécurité} semestriels (tests d'intrusion, revue de code).
+  \item Désigner un \textbf{Délégué à la Protection des Données} (DPO) en interne.
+  \item Documenter un \textbf{plan de réponse aux incidents} conforme au délai de notification de 72~heures.
+\end{itemize}
+
+\subsubsection{Documentation et transmission de connaissance}
+\begin{itemize}
+  \item Maintenir des \textbf{runbooks opérationnels} pour chaque incident type (broker Kafka down, lag de consumer, pic de latence Spark).
+  \item Documenter l'\textbf{onboarding} des nouveaux ingénieurs sur la stack.
+  \item Organiser des \textbf{revues post-mortem} systématiques après chaque incident majeur.
+  \item Publier en interne les \textbf{indicateurs de santé} du système (SLA, MTTR, MTBF).
+\end{itemize}
+
+\subsection{Recommandations pour les décideurs publics et régulateurs}
+
+\subsubsection{Cadre réglementaire favorable aux smart grids}
+\begin{itemize}
+  \item Standardiser les \textbf{formats d'échange} de données entre opérateurs (DLMS/COSEM, IEC~61850).
+  \item Imposer un \textbf{déploiement progressif} des compteurs intelligents sur tout le territoire (à l'image du programme Linky en France).
+  \item Encadrer la \textbf{portabilité des données} pour les consommateurs (équivalent du droit RGPD).
+  \item Faciliter le \textbf{partage de données anonymisées} entre opérateurs pour améliorer les modèles à l'échelle nationale.
+\end{itemize}
+
+\subsubsection{Politique tarifaire et incitations}
+\begin{itemize}
+  \item Mettre en place une \textbf{fiscalité incitative} pour les équipements communicants (chauffe-eau pilotables, bornes de recharge intelligentes).
+  \item Subventionner l'\textbf{autoconsommation collective} dans les quartiers à forte concentration de toitures solaires.
+  \item Encadrer les \textbf{contrats Demand Response} pour protéger les clients vulnérables.
+\end{itemize}
+
+\subsubsection{Soutien à l'objectif national 52~\% EnR en 2030}
+\begin{itemize}
+  \item Financer le \textbf{stockage stationnaire} (batteries lithium, STEP) indispensable pour absorber l'intermittence.
+  \item Accélérer le \textbf{raccordement} des projets EnR au réseau de distribution.
+  \item Encourager la \textbf{recherche académique} (modèles prédictifs, jumeaux numériques du réseau).
+\end{itemize}
+
+\subsubsection{Protection du consommateur}
+\begin{itemize}
+  \item Renforcer les contrôles de la \textbf{CNDP} sur l'usage des données de consommation.
+  \item Imposer un \textbf{droit à l'explication} pour toute décision automatisée (délestage, tarif majoré).
+  \item Garantir un \textbf{tarif social} protégé contre la tarification dynamique pour les ménages précaires.
+\end{itemize}
+
+\subsection{Tableau de bord d'indicateurs (KPI) recommandés}
+
+Pour piloter durablement le système, nous proposons un tableau de bord articulé autour de quatre familles d'indicateurs :
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lYY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Famille} & \textbf{Indicateur} & \textbf{Cible recommandée} \\
+\midrule
+\multirow{3}{*}{\textbf{Opérationnel}}
+  & Disponibilité du dashboard & $\geq$ 99,5~\% \\
+  & Latence end-to-end (compteur $\rightarrow$ alerte) & $<$ 30~secondes \\
+  & Taux de fausses alertes & $<$ 5~\% \\
+\midrule
+\multirow{3}{*}{\textbf{Métier}}
+  & Réduction des pannes par surcharge & $-$30~\% à 12~mois \\
+  & Taux d'effacement réussi (Demand Response) & $\geq$ 70~\% \\
+  & Taux de pénétration EnR par quartier & + 5~\% / an \\
+\midrule
+\multirow{3}{*}{\textbf{Modèles ML}}
+  & RMSE de prédiction & $<$ 8~\% de la charge moyenne \\
+  & R$^2$ des trois modèles & $\geq$ 0,85 \\
+  & Délai de ré-entraînement & $<$ 30~jours \\
+\midrule
+\multirow{3}{*}{\textbf{Éthique \& sécurité}}
+  & Incidents de sécurité (par an) & 0 incident majeur \\
+  & Délai de notification CNDP & $<$ 72~heures \\
+  & Taux d'agrégation des données stockées & 100~\% \\
+\bottomrule
+\end{tabularx}
+\caption{Tableau de bord des KPIs recommandés pour le pilotage du système}
+\end{table}
+
+\subsection{Synthèse et priorisation des actions}
+
+Pour faciliter l'appropriation des recommandations par les équipes opérationnelles, nous proposons une priorisation à trois horizons :
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Horizon} & \textbf{Actions prioritaires} \\
+\midrule
+\textbf{Court terme} (0--3 mois) &
+  Déployer le dashboard en salle de contrôle. Activer TLS sur Kafka/Mongo. Définir les seuils d'alerte. Désigner le DPO. \\
+\midrule
+\textbf{Moyen terme} (3--12 mois) &
+  Industrialiser MLOps (MLflow + ré-entraînement automatique). Lancer un pilote de tarification dynamique sur 1~quartier. Mettre en place les contrats d'effacement industriels. \\
+\midrule
+\textbf{Long terme} ($>$ 12 mois) &
+  Étendre à l'échelle régionale puis nationale. Intégrer les données EnR (PVGIS, éolien). Évoluer vers un véritable Smart Grid avec pilotage automatisé. \\
+\bottomrule
+\end{tabularx}
+\caption{Plan d'action priorisé pour les acteurs du secteur énergétique}
+\end{table}
+
+\begin{infobox}[title=Message clé]
+\textit{Les bénéfices du projet ne se concrétisent que si les recommandations ci-dessus sont mises en \oe{}uvre conjointement par les opérateurs, les régulateurs et les équipes techniques. La technologie seule ne suffit pas : c'est la \textbf{combinaison} d'une infrastructure Big Data robuste, d'une gouvernance éthique des données et d'une volonté politique forte qui permettra au Maroc de réussir sa transition énergétique.}
+\end{infobox}
+
+\newpage
+
+% =====================================================================
+% SECTION 18 : PERSPECTIVES D'AMELIORATION
 % =====================================================================
 \section{Perspectives d'amélioration}
 \label{sec:perspectives}
@@ -413,7 +629,7 @@ Chatbot LLM & Interrogation du dashboard en langage naturel («~Quelles zones ri
 \newpage
 
 % =====================================================================
-% SECTION 18 : CONCLUSION
+% SECTION 19 : CONCLUSION
 % =====================================================================
 \section{Conclusion}
 \label{sec:conclusion}
