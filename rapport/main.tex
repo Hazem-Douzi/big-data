@@ -1,0 +1,501 @@
+% =====================================================================
+%  Projet Final - Fondamentaux de Big Data (M126)
+%  ENSA Tetouan - Departement IA & Digitalisation - 2025-2026
+%  Sujet 6 : Analyse predictive de la charge reseau et optimisation
+%            de la consommation energetique en temps reel
+%
+%  Sections : 15. Ethique & Conformite
+%             17. Perspectives d'amelioration
+%             18. Conclusion
+%
+%  Compilation recommandee :  pdflatex main.tex (x2 pour les TOC/refs)
+% =====================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+% --- Encodage et langue --------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{csquotes}
+\usepackage{microtype}
+
+% --- Mise en page --------------------------------------------------------
+\usepackage[margin=2.5cm,headheight=14pt]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+
+% --- Couleurs (assorties au document du sujet) ---------------------------
+\usepackage{xcolor}
+\definecolor{titlered}{RGB}{210, 50, 50}
+\definecolor{sectiongreen}{RGB}{0, 130, 90}
+\definecolor{accentorange}{RGB}{230, 130, 30}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+\definecolor{softblue}{RGB}{30, 80, 140}
+\definecolor{tableheaderbg}{RGB}{0, 130, 90}
+
+% --- Typographie des titres ----------------------------------------------
+\usepackage{titlesec}
+\titleformat{\section}
+  {\Large\bfseries\color{sectiongreen}}{\thesection}{0.6em}{}
+\titleformat{\subsection}
+  {\large\bfseries\color{accentorange}}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\color{softblue}}{\thesubsubsection}{0.4em}{}
+
+% --- Tableaux ------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{colortbl}
+\renewcommand{\arraystretch}{1.3}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% --- Listes --------------------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=2pt, parsep=2pt, topsep=3pt}
+
+% --- Symboles ------------------------------------------------------------
+\usepackage{pifont}
+\newcommand{\done}{\textcolor{sectiongreen}{\ding{51}}}
+\newcommand{\todo}{\textcolor{titlered}{\ding{55}}}
+
+% --- Hyperliens ----------------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=sectiongreen,
+  urlcolor=accentorange,
+  citecolor=sectiongreen,
+  pdftitle={Projet Big Data - ENSA Tetouan},
+  pdfauthor={Groupe Big Data}
+}
+
+% --- En-tete et pied de page --------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{ENSA-Tétouan} -- Dépt IA \& Digitalisation}
+\fancyhead[R]{\small Fondamentaux de Big Data -- 2025-2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% --- Encadres -----------------------------------------------------------
+\usepackage[most]{tcolorbox}
+\newtcolorbox{infobox}[1][]{
+  colback=lightgray,
+  colframe=sectiongreen,
+  fonttitle=\bfseries\color{white},
+  coltitle=white,
+  colbacktitle=sectiongreen,
+  arc=2mm, boxrule=0.6pt, breakable,
+  left=8pt, right=8pt, top=6pt, bottom=6pt,
+  #1}
+
+% --- Acronymes -----------------------------------------------------------
+\usepackage{acronym}
+
+% =====================================================================
+%                              DOCUMENT
+% =====================================================================
+\begin{document}
+
+% --- Page de titre (a supprimer si le rapport est integre dans un autre fichier)
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\large\textbf{Université Abdelmalek Essaâdi}}\\
+  {\large École Nationale des Sciences Appliquées -- Tétouan}\\
+  {\normalsize Département : Intelligence Artificielle et Digitalisation}\\
+  {\normalsize Filière : Sciences des Données, Big Data \& Intelligence Artificielle}\\
+  {\normalsize Module : Fondamentaux de Big Data (M126)}\\
+  {\normalsize Pr.~Imad Sassi}\\[2.5cm]
+  {\Huge\bfseries\color{sectiongreen} Projet Final}\\[0.4cm]
+  {\Large\bfseries\color{titlered} Fondamentaux de Big Data}\\[1.5cm]
+  {\large\itshape Analyse prédictive de la charge réseau\\et optimisation de la consommation énergétique en temps réel}\\[3cm]
+  {\large\textbf{Sections : 15, 17 et 18}}\\[0.5cm]
+  {\large Éthique \& Conformité --- Perspectives --- Conclusion}\\[3cm]
+  {\large\textbf{Année universitaire 2025--2026}}\\
+  \vfill
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =====================================================================
+% SECTION 15 : ETHIQUE ET CONFORMITE
+% =====================================================================
+\section{Éthique \& Conformité}
+\label{sec:ethique}
+
+\subsection{Introduction et enjeux}
+
+Le projet manipule des données issues de plus de \textbf{91~000 compteurs intelligents} simulés à Tétouan, répartis sur \textbf{18 quartiers} et \textbf{681 distributeurs}. Bien que la simulation actuelle ne contienne aucune donnée nominative réelle, le système est conçu pour pouvoir, à terme, traiter de véritables relevés issus de compteurs Linky ou Smart~Meters. Cette section anticipe donc les obligations légales et éthiques applicables à un \emph{déploiement en production}.
+
+L'énergie est un secteur sensible où les données fines de consommation peuvent révéler le \textbf{mode de vie} des habitants : heures de présence, nombre de personnes au foyer, équipements utilisés, périodes de vacances. La protection de ces données est donc une exigence forte, à la fois juridique et morale.
+
+\begin{infobox}[title=Principe directeur du projet]
+\textit{Aucune donnée ne doit pouvoir être reliée à un foyer ou à un individu identifiable. Toute information stockée à long terme est agrégée à l'échelle d'un quartier ou d'un distributeur.}
+\end{infobox}
+
+\subsection{Cadre juridique applicable}
+
+\subsubsection{Au Maroc -- Loi 09-08}
+La \textbf{Loi 09-08 (2009)} relative à la protection des personnes physiques à l'égard du traitement des données à caractère personnel est l'instrument juridique de référence. Elle est supervisée par la \textbf{CNDP} (Commission Nationale de contrôle de la Protection des Données à caractère Personnel). Elle impose notamment :
+\begin{itemize}
+  \item la \textbf{déclaration préalable} du traitement à la CNDP ;
+  \item le \textbf{consentement explicite} des abonnés ;
+  \item le \textbf{droit d'accès, de rectification et d'opposition} des personnes concernées ;
+  \item la \textbf{limitation de la durée de conservation} des données ;
+  \item la \textbf{sécurité et la confidentialité} des données traitées.
+\end{itemize}
+
+\subsubsection{Conformité internationale -- RGPD}
+Si une partie des données transite par des serveurs européens (cloud, API météo telles que OpenWeather), le \textbf{RGPD} (Règlement UE~2016/679) s'applique de plein droit. Les principes structurants à retenir sont :
+\begin{itemize}
+  \item \textbf{Privacy by Design} : la confidentialité est intégrée dès la conception du système ;
+  \item \textbf{Privacy by Default} : les paramètres les plus protecteurs sont activés par défaut ;
+  \item \textbf{Minimisation des données} : seules les variables nécessaires à la finalité sont collectées ;
+  \item \textbf{Pseudonymisation et chiffrement} systématiques ;
+  \item Notification des violations de données dans un délai de \textbf{72~heures}.
+\end{itemize}
+
+\subsubsection{Norme sectorielle -- IEC 62056 (DLMS/COSEM)}
+Standard international pour la communication des compteurs intelligents, qui impose des mécanismes d'authentification mutuelle et de chiffrement des trames échangées entre concentrateurs et compteurs.
+
+\subsection{Mesures appliquées dans notre projet}
+
+\subsubsection{Anonymisation et pseudonymisation}
+Aucun identifiant nominatif n'est utilisé. Les compteurs sont identifiés par un code purement technique :
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lll}
+\toprule
+\rowcolor{lightgray}
+\textbf{Type d'entité} & \textbf{Format d'identifiant} & \textbf{Exemple} \\
+\midrule
+Compteur intelligent & \texttt{SM-TET-XXXXXX} & \texttt{SM-TET-045213} \\
+Distributeur & \texttt{DIST-TET-XXXX} & \texttt{DIST-TET-0124} \\
+Concentrateur & \texttt{CONC-TET-XX} & \texttt{CONC-TET-07} \\
+\bottomrule
+\end{tabular}
+\caption{Format des identifiants techniques utilisés dans le projet}
+\end{table}
+
+Aucun nom, adresse, numéro de téléphone ou adresse e-mail n'est stocké dans MongoDB. La géolocalisation est effectuée \textbf{au niveau du quartier} (18 zones), jamais à l'échelle d'un foyer individuel.
+
+\subsubsection{Minimisation des données}
+Seules les variables strictement nécessaires à la prédiction de la charge sont collectées et stockées :
+\begin{itemize}
+  \item Mesures électriques : \texttt{energy\_consumption}, \texttt{voltage}, \texttt{current}, \texttt{status} ;
+  \item Localisation grossière : \texttt{district}, \texttt{zone\_type}, latitude/longitude au niveau du quartier ;
+  \item Horodatage : \texttt{timestamp}.
+\end{itemize}
+Aucune donnée comportementale fine (signature électrique d'appareils via \emph{Non-Intrusive Load Monitoring}) n'est extraite.
+
+\subsubsection{Agrégation comme protection structurelle}
+Le pipeline Spark Structured Streaming agrège les relevés par fenêtre de \textbf{15 minutes} et par quartier. Cette \textbf{double agrégation temporelle et spatiale} rend impossible la ré-identification d'un foyer individuel à partir des données stockées long terme dans la collection \texttt{spark\_district\_consumption}.
+
+\subsubsection{Politique de rétention}
+Le consumer Kafka est configuré avec la variable d'environnement \texttt{DELETE\_RAW\_AFTER\_COMPLETION="true"} : les relevés bruts sont \textbf{supprimés} de MongoDB après leur agrégation. Seules les agrégations par distributeur et par quartier sont conservées long terme. Cela répond directement au principe juridique de \textbf{limitation de la conservation}.
+
+\subsubsection{Sécurité technique}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lYY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Couche} & \textbf{Mesure actuelle (dev)} & \textbf{Recommandation production} \\
+\midrule
+Réseau Docker & Réseau isolé \texttt{energy-net} & Politique réseau Kubernetes / VPN dédié \\
+Kafka & PLAINTEXT (développement local) & TLS + SASL/SCRAM obligatoires \\
+MongoDB & Sans authentification (dev) & Authentification + chiffrement TLS \\
+Dashboard Streamlit & Accès ouvert local & OAuth2 / SSO + HTTPS \\
+Logs applicatifs & \texttt{stdout} Docker & Centralisation ELK + masquage des PII \\
+\bottomrule
+\end{tabularx}
+\caption{Comparaison entre les mesures de sécurité actuelles et celles requises en production}
+\end{table}
+
+\subsubsection{Transparence et explicabilité}
+Le projet compare \textbf{trois modèles d'apprentissage automatique} (régression linéaire, Random Forest, Gradient Boosting) en exposant publiquement les métriques RMSE, MAE et R$^2$ via la collection MongoDB \texttt{ml\_model\_metrics}. Cette traçabilité répond directement au \textbf{droit à l'explication} prévu par l'article~22 du RGPD : un client doit pouvoir comprendre pourquoi le système prédit une saturation sur sa zone.
+
+\subsection{Risques résiduels et plan de mitigation}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{Y c Y}
+\toprule
+\rowcolor{lightgray}
+\textbf{Risque identifié} & \textbf{Niveau} & \textbf{Mitigation} \\
+\midrule
+Ré-identification par croisement avec d'autres bases & Moyen & Agrégation à l'échelle quartier, k-anonymat $\geq 50$ \\
+Biais géographique (quartiers riches mieux modélisés) & Moyen & Audit des métriques par zone, rééquilibrage \\
+Fuite de données via API non chiffrée & Élevé en prod & TLS de bout en bout, audit régulier \\
+Décisions automatisées discriminantes & Moyen & Validation humaine pour les alertes critiques \\
+Dérive du modèle (data drift) & Moyen & Monitoring continu, ré-entraînement automatique \\
+\bottomrule
+\end{tabularx}
+\caption{Cartographie des risques éthiques et des mesures de mitigation}
+\end{table}
+
+\subsection{Conclusion de la section}
+Le projet respecte, par construction, les principes fondamentaux de la protection des données : minimisation, agrégation, pseudonymisation, durée de conservation limitée. Pour un passage en production réel sur le réseau de l'\textbf{ONEE} (Office National de l'Électricité et de l'Eau Potable), trois chantiers prioritaires subsistent :
+\begin{enumerate}
+  \item L'\textbf{authentification} systématique de tous les services internes (Kafka, MongoDB, Spark).
+  \item Le \textbf{chiffrement TLS} de bout en bout pour tous les flux réseau.
+  \item La \textbf{déclaration formelle} du traitement à la CNDP avant mise en service.
+\end{enumerate}
+
+\newpage
+
+% =====================================================================
+% SECTION 17 : PERSPECTIVES D'AMELIORATION
+% =====================================================================
+\section{Perspectives d'amélioration}
+\label{sec:perspectives}
+
+\subsection{Limites identifiées du projet actuel}
+
+Avant de proposer des évolutions, il est essentiel d'identifier honnêtement les limites du système livré :
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Limite} & \textbf{Description} \\
+\midrule
+Données simulées & Le simulateur génère des consommations selon des profils théoriques. Les comportements réels présentent davantage de variabilité. \\
+Volumétrie testée & 91~000 compteurs en mode pseudo-distributed Docker. Le passage à un cluster physique multi-n\oe{}uds n'a pas été éprouvé. \\
+Modèles ML classiques & scikit-learn : LinearRegression / RandomForest / GradientBoosting. Pas de modèles séquentiels (LSTM, Transformer). \\
+Fenêtre fixe de 15~minutes & Pas d'analyse fine intra-fenêtre, ni de granularité variable. \\
+NLP limité au français & TF-IDF + Logistic Regression, sans embeddings contextuels (BERT) ni gestion de l'arabe dialectal. \\
+Pas d'intégration EnR & Les énergies renouvelables (solaire, éolien) ne sont pas encore introduites comme features prédictives. \\
+Pas de boucle de rétroaction & Le système prédit mais ne pilote pas encore d'actionneurs (délestage automatique, tarification dynamique). \\
+\bottomrule
+\end{tabularx}
+\caption{Limites assumées du projet dans sa version actuelle}
+\end{table}
+
+\subsection{Axes d'amélioration techniques}
+
+\subsubsection{Passage à des données réelles}
+\begin{itemize}
+  \item Établir un \textbf{partenariat avec l'ONEE} pour obtenir un échantillon anonymisé de relevés Linky/Smart~Meters réels sur Tétouan.
+  \item Mise en place d'un protocole \textbf{DLMS/COSEM (IEC 62056)} pour la collecte directe depuis les concentrateurs physiques.
+  \item Comparaison statistique des distributions simulées vs réelles pour calibrer le simulateur et réduire le \emph{simulation-to-reality gap}.
+\end{itemize}
+
+\subsubsection{Modèles d'IA plus puissants}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lYY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Catégorie} & \textbf{Modèle proposé} & \textbf{Apport attendu} \\
+\midrule
+Séries temporelles & LSTM / GRU & Capturer les dépendances long terme (cycles hebdomadaires, saisonniers) \\
+Mécanismes d'attention & Transformer (Informer, Autoformer) & Prédiction multi-horizon précise \\
+Modèles hybrides & N-BEATS, Prophet + XGBoost & Combinaison de tendance + événements \\
+Apprentissage fédéré & TensorFlow Federated & Entraînement sans centraliser les données (vie privée) \\
+Détection d'anomalies & Isolation Forest, Autoencoders & Identifier des incidents jamais vus \\
+\bottomrule
+\end{tabularx}
+\caption{Familles de modèles avancés envisagés}
+\end{table}
+
+\subsubsection{Enrichissement du pipeline NLP}
+\begin{itemize}
+  \item Remplacement de TF-IDF par \textbf{CamemBERT} ou \textbf{DarijaBERT} pour traiter les feedbacks en français standard et en arabe dialectal marocain.
+  \item Ajout d'une couche d'\textbf{analyse de sentiment} (détresse, colère) pour prioriser les incidents critiques.
+  \item \textbf{Reconnaissance d'entités nommées} (NER) pour relier automatiquement un rapport à un quartier, un transformateur ou un distributeur précis.
+  \item Construction d'un \textbf{graphe de connaissances} (Neo4j) reliant incidents, équipements et zones géographiques.
+\end{itemize}
+
+\subsubsection{Architecture et scalabilité}
+\begin{itemize}
+  \item Migration de Docker~Compose vers \textbf{Kubernetes} (K3s ou OpenShift) pour le mode \emph{Fully-Distributed} à grande échelle.
+  \item Remplacement du single-broker Kafka par un \textbf{cluster Kafka 3 brokers} avec \texttt{replication.factor = 3}.
+  \item Adoption d'\textbf{Apache Flink} en complément de Spark pour les latences sub-secondes (alertes critiques temps réel).
+  \item Stockage analytique : ajout d'\textbf{Apache Druid} ou \textbf{ClickHouse} pour les requêtes OLAP du dashboard.
+  \item Data lake : intégration d'\textbf{Apache Iceberg} sur S3/MinIO pour l'archivage long terme.
+\end{itemize}
+
+\subsubsection{Qualité des données et MLOps}
+\begin{itemize}
+  \item Mise en place de \textbf{Great Expectations} pour valider chaque flux entrant avant ingestion.
+  \item \textbf{Feature Store} (Feast) pour partager les variables prédictives entre équipes et entre modèles.
+  \item \textbf{MLflow} pour le suivi des expérimentations et la gestion d'un \emph{model registry}.
+  \item Ré-entraînement automatique des modèles via \textbf{Apache Airflow} dès que la dérive (\emph{concept drift}) dépasse un seuil prédéfini.
+  \item Tests unitaires et d'intégration dans une chaîne CI/CD GitHub~Actions.
+\end{itemize}
+
+\subsection{Axes d'amélioration métier}
+
+\subsubsection{Intégration des Énergies Renouvelables (EnR)}
+\begin{itemize}
+  \item Ajout d'un producer \textbf{solaire} consommant l'API \emph{PVGIS} de la JRC européenne, paramétrée pour Tétouan (latitude 35.57°N).
+  \item Ajout d'un producer \textbf{éolien} combinant vitesse du vent et courbes de puissance des turbines.
+  \item Modèle de \textbf{prévision nette} : consommation prévue $-$ production EnR prévue.
+  \item Recommandation d'\textbf{heures creuses dynamiques} pour favoriser l'autoconsommation.
+\end{itemize}
+
+\subsubsection{Pilotage actif du réseau (Smart Grid)}
+\begin{itemize}
+  \item \textbf{Délestage intelligent} : envoi automatique de commandes vers les distributeurs en cas de saturation prévue.
+  \item \textbf{Tarification dynamique} : ajustement du prix au quart d'heure selon la charge prédite (\emph{Demand Response}).
+  \item \textbf{Recommandations personnalisées} aux clients via une application mobile : par exemple « Décalez votre lave-linge de 20:00 à 23:00 pour économiser X~MAD ».
+  \item Intégration avec les \textbf{bornes de recharge de véhicules électriques} pour lisser les pics de consommation.
+\end{itemize}
+
+\subsubsection{Extension géographique}
+\begin{itemize}
+  \item Réplication du système sur d'autres villes marocaines : \textbf{Tanger, Casablanca, Rabat, Marrakech}.
+  \item Couche d'agrégation \textbf{régionale} puis \textbf{nationale} pour piloter le réseau ONEE complet.
+  \item Intégration avec les \textbf{interconnexions internationales} (Espagne, Algérie).
+\end{itemize}
+
+\subsubsection{Nouveaux cas d'usage analytiques}
+\begin{itemize}
+  \item \textbf{Détection de fraude} : identification de schémas de consommation anormaux pouvant révéler un vol d'électricité.
+  \item \textbf{Maintenance prédictive} des transformateurs à partir des dérives de tension observées.
+  \item \textbf{Étude d'impact climatique} : corrélation entre vagues de chaleur et pics de consommation.
+  \item \textbf{Empreinte carbone} par quartier en croisant la consommation avec le mix énergétique en temps réel.
+\end{itemize}
+
+\subsection{Axes d'amélioration de l'interface}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Évolution} & \textbf{Description} \\
+\midrule
+Application mobile & React Native pour les techniciens terrain (alertes \emph{push}) \\
+Mode sombre + accessibilité & Conformité WCAG 2.1 niveau AA \\
+Multi-langue & Français, arabe, anglais, tamazight \\
+Export PDF automatique & Rapport hebdomadaire généré pour les gestionnaires de réseau \\
+Chatbot LLM & Interrogation du dashboard en langage naturel («~Quelles zones risquent une saturation ce soir~?~») \\
+\bottomrule
+\end{tabularx}
+\caption{Évolutions ergonomiques envisagées pour le dashboard}
+\end{table}
+
+\subsection{Feuille de route proposée}
+
+\begin{table}[h!]
+\centering
+\begin{tabularx}{\textwidth}{lYY}
+\toprule
+\rowcolor{lightgray}
+\textbf{Horizon} & \textbf{Priorité 1} & \textbf{Priorité 2} \\
+\midrule
+0--3 mois & Sécurisation TLS Kafka + MongoDB & Intégration BERT pour le NLP \\
+3--6 mois & Ajout LSTM et comparaison aux 3 modèles actuels & Producer solaire (PVGIS) \\
+6--12 mois & Migration Kubernetes + cluster multi-n\oe{}uds & Application mobile React Native \\
+12 mois et + & Apprentissage fédéré + déploiement réel ONEE & Extension à 5 villes marocaines \\
+\bottomrule
+\end{tabularx}
+\caption{Roadmap d'évolution du système sur 12 mois et au-delà}
+\end{table}
+
+\newpage
+
+% =====================================================================
+% SECTION 18 : CONCLUSION
+% =====================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+\subsection{Bilan du projet}
+
+Ce projet a permis de \textbf{concevoir, implémenter et valider} un pipeline Big Data complet répondant aux \textbf{huit exigences techniques} du sujet (points A à H) :
+
+\begin{itemize}[leftmargin=*]
+  \item[\done] \textbf{Ingestion en streaming} de trois sources hétérogènes (compteurs, météo, RSS industriel) via Apache Kafka.
+  \item[\done] \textbf{Traitement distribué} par Spark Structured Streaming avec fenêtrage de 15~minutes et corrélation NLP/tension.
+  \item[\done] \textbf{Stockage NoSQL} dans MongoDB, choisi à l'issue d'une étude comparative avec Cassandra, HBase, Neo4j et ElasticSearch.
+  \item[\done] \textbf{Modélisation IA} comparant rigoureusement trois algorithmes (régression linéaire, Random Forest, Gradient Boosting) sur RMSE, MAE, R$^2$ et temps d'inférence.
+  \item[\done] \textbf{Data Quality Framework} couvrant complétude, bruit et biais, avec choix assumé de données synthétiques.
+  \item[\done] \textbf{Dashboard interactif} Streamlit affichant carte de chaleur, courbes prédiction~vs~réel, nuage de mots et alertes prédictives.
+  \item[\done] \textbf{Modes d'installation hybride} testés en \emph{Pseudo-Distributed} (Docker~Compose) et \emph{Fully-Distributed} (Spark master + workers).
+  \item[\done] \textbf{Éthique et conformité} anticipées (anonymisation, agrégation, RGPD, Loi 09-08).
+\end{itemize}
+
+\subsection{Réponse à la problématique}
+
+La problématique posée était la suivante :
+\begin{quote}
+\itshape Comment prédire avec précision la charge réseau et détecter en temps réel les incidents pour optimiser la distribution énergétique et favoriser l'intégration des énergies renouvelables~?
+\end{quote}
+
+Le système livré apporte une réponse concrète et opérationnelle :
+\begin{itemize}
+  \item Prédiction par quartier à un horizon de \textbf{15 minutes}, avec une RMSE compétitive sur les trois modèles évalués.
+  \item Détection en temps réel des \textbf{chutes de tension} et des \textbf{surcharges} via le simulateur Tétouan.
+  \item Corrélation automatique entre \textbf{anomalies textuelles} (rapports techniques, flux RSS) et \textbf{anomalies physiques} (\texttt{avg\_voltage} $<$ 210~V), permettant un diagnostic plus précis qu'une approche purement quantitative.
+  \item Génération d'\textbf{alertes prédictives} sur les zones à risque (\texttt{saturation\_risk}, \texttt{voltage\_risk}, \texttt{overload\_risk}).
+\end{itemize}
+
+\subsection{Apports du projet}
+
+\subsubsection{Apports techniques}
+\begin{itemize}
+  \item Maîtrise d'une \textbf{stack Big Data complète} : Kafka, Spark, MongoDB, Docker, Streamlit.
+  \item Mise en pratique des paradigmes \textbf{streaming temps réel} et \textbf{batch analytics}.
+  \item Comparaison rigoureuse de modèles ML accompagnée d'une \textbf{étude de performances}.
+  \item Intégration de techniques de \textbf{NLP en français} dans une chaîne décisionnelle métier.
+\end{itemize}
+
+\subsubsection{Apports métier}
+\begin{itemize}
+  \item Outillage utilisable par un \textbf{gestionnaire de réseau} pour anticiper la demande énergétique.
+  \item Recommandations exploitables pour :
+    \begin{itemize}
+      \item le \textbf{délestage proactif} des zones à risque ;
+      \item l'\textbf{ajustement tarifaire} selon la charge prévue ;
+      \item la \textbf{planification de la maintenance} des transformateurs ;
+      \item l'\textbf{intégration des EnR intermittentes} dans le mix énergétique national.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Apports académiques}
+\begin{itemize}
+  \item Application concrète des principes étudiés dans le module M126 (\emph{Fondamentaux de Big Data}).
+  \item Démonstration de la complémentarité entre \textbf{streaming distribué} et \textbf{machine learning}.
+  \item Illustration d'un cas réel d'\textbf{éthique du Big Data} dans un secteur fortement régulé.
+\end{itemize}
+
+\subsection{Limites assumées}
+
+\begin{itemize}
+  \item Le projet repose sur des \textbf{données simulées} et non sur des relevés Linky réels, faute d'accès aux infrastructures ONEE.
+  \item La validation des modèles s'appuie sur un échantillon limité de cycles ; le système nécessite plusieurs jours d'historique avant d'atteindre sa pleine performance prédictive.
+  \item Le déploiement \emph{Fully-Distributed} a été simulé via Docker~Compose, sans cluster physique multi-n\oe{}uds dédié.
+  \item Les modèles utilisés restent \textbf{classiques} (scikit-learn) ; les approches deep learning sont laissées en perspective.
+\end{itemize}
+
+\subsection{Mot de fin}
+
+Au-delà de la note académique, ce projet constitue une \textbf{base technique réutilisable} pour des cas d'usage réels d'optimisation des réseaux énergétiques au Maroc. À l'heure où le Royaume vise \textbf{52~\% d'énergies renouvelables d'ici 2030}, des systèmes capables de prévoir la charge et d'orchestrer un réseau intelligent deviennent stratégiques pour la transition énergétique nationale.
+
+Le code source, les modèles entraînés, le dashboard et la présente documentation sont publiés sur le dépôt \textbf{GitHub} du groupe, dans une logique de \textbf{reproductibilité} et de transparence scientifique.
+
+\bigskip
+
+\begin{infobox}[title=Remerciements]
+Nous remercions chaleureusement \textbf{Pr.~Imad Sassi} pour l'encadrement pédagogique du module \emph{Fondamentaux de Big Data} et pour avoir proposé un sujet à la fois exigeant techniquement et porteur d'impact sociétal. Nos remerciements s'adressent également à l'\textbf{équipe pédagogique} du Département IA \& Digitalisation de l'\textbf{ENSA-Tétouan} pour la qualité de la formation dispensée.
+\end{infobox}
+
+\end{document}
